@@ -36,12 +36,20 @@ namespace PWM
 
         private void bSet_Click(object sender, EventArgs e)
         {
+            setPWM(tNew.Text);
+
+            RefreshV();
+        }
+
+        private void setPWM(String text)
+        {
             int v;
-            if(!int.TryParse(tNew.Text, out v) || v < 200)
+            if (!int.TryParse(text, out v) || v < 200)
             {
                 MessageBox.Show("Invalid value < 200");
                 return;
             }
+
             byte[] b = BitConverter.GetBytes(v);
             Array.Copy(b, 0, baseData, 4, 4);
 
@@ -49,8 +57,17 @@ namespace PWM
             dh.SendDataToDriver(ESCAPEDATATYPE_ENUM.GET_SET_PWM_FREQUENCY, 4, ref error, ref baseData[0]);
             if (error != 0)
                 MessageBox.Show(string.Format("failed set get PWM: {0:X}", error));
+        }
 
-            RefreshV();
+        private void PWM_Load(object sender, EventArgs e)
+        {
+            String[] args = Environment.GetCommandLineArgs();
+
+            if (args.Length > 1)
+            {
+                setPWM(args[1]);
+                Close();
+            }
         }
     }
 }
